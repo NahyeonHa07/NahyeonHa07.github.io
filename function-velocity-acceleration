@@ -1,0 +1,97 @@
+"""
+This script visualizes a user-defined function along with its velocity (1st derivative) 
+and acceleration (2nd derivative) using numerical differentiation. 
+Users can input any function and range, and save the resulting plot.
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -------------------------------
+# 1. Define the function to analyze
+# -------------------------------
+def func(x):
+    """
+    Define the function you want to analyze here.
+    Example: return x**2
+    """
+    return x**2  # Change this line for a different function
+
+# -------------------------------
+# 2. Numerical derivative: 1st derivative (velocity)
+# -------------------------------
+def numerical_derivative1(x, h=1e-3):
+    """
+    Compute the numerical first derivative (velocity) of func at points x
+    using forward difference.
+    """
+    y = []
+    for each_x in x:
+        tangent = (func(each_x + h) - func(each_x)) / h
+        y.append(tangent)
+    return y
+
+# -------------------------------
+# 3. Numerical derivative: 2nd derivative (acceleration)
+# -------------------------------
+def numerical_derivative2(x, h=1e-3):
+    """
+    Compute the numerical second derivative (acceleration) of func at points x.
+    """
+    d1 = numerical_derivative1(x, h)
+    y = []
+    for i in range(len(d1)-1):
+        tangent = (d1[i+1] - d1[i]) / h
+        y.append(tangent)
+    y.append(y[-1])  # keep same length
+    return y
+
+# -------------------------------
+# 4. Main plotting function
+# -------------------------------
+def plot_function_velocity_acceleration(A=0, B=10, h=1e-3, save_file=False):
+    """
+    Plot the function, its velocity, and acceleration.
+    Parameters:
+    A, B: float, range of x
+    h: float, step size for numerical differentiation
+    save_file: bool, whether to save the plot as PNG
+    """
+    x = np.arange(A, B, h)
+    
+    y_func = func(x)
+    y_vel = numerical_derivative1(x, h)
+    y_acc = numerical_derivative2(x, h)
+
+    plt.figure(figsize=(10,6))
+    line1, = plt.plot(x, y_func, label='Function')
+    line2, = plt.plot(x, y_vel, color='orange', label='Velocity')
+    line3, = plt.plot(x, y_acc, color='green', label='Acceleration')
+
+    plt.legend(handles=(line1, line2, line3))
+    plt.grid(True)
+    plt.xlabel('x')
+    plt.ylabel('y / Velocity / Acceleration')
+    plt.title('Function, Velocity, and Acceleration')
+    
+    if save_file:
+        plt.savefig("function_velocity_acceleration.png", dpi=300)
+        print("Plot saved as 'function_velocity_acceleration.png'")
+    
+    plt.show()
+
+# -------------------------------
+# 5. Interactive input
+# -------------------------------
+if __name__ == "__main__":
+    print("Enter the range for x-axis:")
+    try:
+        A = float(input("Start (A): "))
+        B = float(input("End (B): "))
+    except ValueError:
+        print("Invalid input. Using default range 0 to 10.")
+        A, B = 0, 10
+
+    save = input("Save plot as PNG? (y/n): ").lower() == 'y'
+
+    plot_function_velocity_acceleration(A, B, h=1e-3, save_file=save)
